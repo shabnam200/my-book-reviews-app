@@ -1,57 +1,96 @@
-/* Universal Box Sizing */
+
 *, *::before, *::after {
     box-sizing: border-box;
 }
 
-/* Base Body Styles */
+:root {
+    --background-color: #f8f8f8;
+    --text-color: #333;
+    --section-bg: #fff;
+    --section-border: #e0e0e0;
+    --section-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    --heading-color: #333;
+    --input-border: #ccc;
+    --btn-bg: #007bff;
+    --btn-hover-bg: #0056b3;
+    --btn-active-bg: #004085;
+    --search-border: #eee;
+    --book-card-bg: #f9f9f9;
+    --book-card-border: #eee;
+    --book-card-text: #333;
+    --book-card-subtext: #666;
+    --label-color: #555;
+    --review-item-bg: #f9f9f9;
+    --review-item-border: #eee;
+    --review-item-heading: #007bff;
+    --review-item-strong: #444;
+    --review-item-small: #888;
+    --read-aloud-bg: #6c757d;
+    --read-aloud-hover-bg: #5a6268;
+    --success-bg: #d4edda;
+    --success-color: #155724;
+    --success-border: #c3e6cb;
+    --error-bg: #f8d7da;
+    --error-color: #721c24;
+    --error-border: #f5c6cb;
+}
+
+body.dark-mode {
+    --background-color: #222;
+    --text-color: #eee;
+    --section-bg: #333;
+    --section-border: #555;
+    --section-shadow: 0 4px 10px rgba(0,0,0,0.4);
+    --heading-color: #eee;
+    --input-border: #777;
+    --btn-bg: #0056b3;
+    --btn-hover-bg: #007bff;
+    --btn-active-bg: #004085;
+    --search-border: #666;
+    --book-card-bg: #444;
+    --book-card-border: #666;
+    --book-card-text: #eee;
+    --book-card-subtext: #bbb;
+    --label-color: #ddd;
+    --review-item-bg: #444;
+    --review-item-border: #666;
+    --review-item-heading: #88c0f7;
+    --review-item-strong: #ccc;
+    --review-item-small: #aaa;
+}
+
 body {
-    font-family: 'Inter', sans-serif; /* Using Inter font */
+    font-family: 'Inter', sans-serif;
     line-height: 1.6;
     margin: 0;
     padding: 20px;
-    background-color: #f8f8f8;
-    color: #333;
+    background-color: var(--background-color);
+    color: var(--text-color);
     transition: background-color 0.3s ease, color 0.3s ease;
-    min-height: 100vh; /* Ensures body takes full viewport height */
+    min-height: 100vh;
     display: flex;
     justify-content: center;
-    align-items: flex-start; /* Align items to the start for better content flow */
+    align-items: flex-start;
 }
 
-/* Dark Mode Styles */
-body.dark-mode {
-    background-color: #222;
-    color: #eee;
-}
-
-/* Container for app content */
 .container {
     max-width: 960px;
     width: 100%;
     margin: 20px auto;
-    padding: 0 15px; /* Add some horizontal padding */
+    padding: 0 15px;
 }
 
-/* Section Styling */
 .section {
-    background-color: #fff;
+    background-color: var(--section-bg);
     border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    box-shadow: var(--section-shadow);
     padding: 25px;
     margin-bottom: 30px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--section-border);
 }
 
-body.dark-mode .section {
-    background-color: #333;
-    border-color: #555;
-    color: #eee;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-}
-
-/* Headings */
 h1, h3, h4 {
-    color: #333;
+    color: var(--heading-color);
     margin-top: 0;
     margin-bottom: 20px;
     text-align: center;
@@ -64,22 +103,16 @@ h1 {
     margin-bottom: 30px;
 }
 
-body.dark-mode h1,
-body.dark-mode h3,
-body.dark-mode h4 {
-    color: #eee;
-}
-
-/* Input Fields */
 .input-field {
     width: 100%;
     padding: 12px;
     margin-bottom: 15px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--input-border);
     border-radius: 8px;
-    box-sizing: border-box;
     font-size: 16px;
     transition: border-color 0.2s ease, background-color 0.2s ease;
+    background-color: var(--section-bg);
+    color: var(--text-color);
 }
 
 .input-field:focus {
@@ -88,15 +121,8 @@ body.dark-mode h4 {
     box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
 }
 
-body.dark-mode .input-field {
-    background-color: #555;
-    color: #eee;
-    border-color: #777;
-}
-
-/* Buttons */
 .btn {
-    background-color: #007bff;
+    background-color: var(--btn-bg);
     color: white;
     padding: 12px 20px;
     border: none;
@@ -108,26 +134,19 @@ body.dark-mode .input-field {
 }
 
 .btn:hover {
-    background-color: #0056b3;
+    background-color: var(--btn-hover-bg);
     transform: translateY(-1px);
 }
 
 .btn:active {
-    background-color: #004085;
+    background-color: var(--btn-active-bg);
     transform: translateY(0);
 }
 
 body.dark-mode .btn {
-    background-color: #0056b3;
     box-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
-body.dark-mode .btn:hover {
-    background-color: #007bff;
-}
 
-/* Specific Section Styles */
-
-/* Search Input Group */
 .search-input-group {
     display: flex;
     gap: 10px;
@@ -136,18 +155,14 @@ body.dark-mode .btn:hover {
 
 .search-input-group .input-field {
     flex-grow: 1;
-    margin-bottom: 0; /* Remove extra margin */
+    margin-bottom: 0;
 }
 
-/* Search Results Grid */
 .search-results {
     margin-top: 20px;
     padding-top: 20px;
-    border-top: 1px solid #eee;
+    border-top: 1px solid var(--search-border);
     text-align: center;
-}
-body.dark-mode .search-results {
-    border-top-color: #666;
 }
 
 .search-results-grid {
@@ -158,7 +173,7 @@ body.dark-mode .search-results {
 }
 
 .book-card {
-    background-color: #f9f9f9;
+    background-color: var(--book-card-bg);
     padding: 15px;
     border-radius: 10px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.05);
@@ -167,14 +182,7 @@ body.dark-mode .search-results {
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
-    border: 1px solid #eee;
-}
-
-body.dark-mode .book-card {
-    background-color: #444;
-    border-color: #666;
-    color: #eee;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    border: 1px solid var(--book-card-border);
 }
 
 .book-card img.book-cover {
@@ -188,20 +196,14 @@ body.dark-mode .book-card {
 .book-card h5 {
     font-size: 1.1em;
     margin-bottom: 5px;
-    color: #333;
-    word-break: break-word; /* Prevents long words from overflowing */
-}
-body.dark-mode .book-card h5 {
-    color: #eee;
+    color: var(--book-card-text);
+    word-break: break-word;
 }
 
 .book-card p {
     font-size: 0.9em;
-    color: #666;
+    color: var(--book-card-subtext);
     margin-bottom: 10px;
-}
-body.dark-mode .book-card p {
-    color: #bbb;
 }
 
 .book-card .select-book-btn {
@@ -214,22 +216,17 @@ body.dark-mode .book-card p {
     background-color: #218838;
 }
 
-/* Review Form */
 .form-group label {
     display: block;
     margin-bottom: 8px;
     font-weight: 600;
-    color: #555;
-}
-body.dark-mode .form-group label {
-    color: #ddd;
+    color: var(--label-color);
 }
 
 .submit-btn {
     width: 100%;
 }
 
-/* Review List */
 .book-reviews-list {
     text-align: center;
 }
@@ -239,102 +236,104 @@ body.dark-mode .form-group label {
 }
 
 .book-review-item {
-    background-color: #f9f9f9;
+    background-color: var(--review-item-bg);
     padding: 15px;
     border-radius: 10px;
     margin-bottom: 15px;
-    border: 1px solid #eee;
+    border: 1px solid var(--review-item-border);
     box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    text-align: left; /* Align text inside review items to left */
-    position: relative; /* For read aloud button positioning */
-}
-
-body.dark-mode .book-review-item {
-    background-color: #444;
-    border-color: #666;
-    color: #eee;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    text-align: left;
+    position: relative;
 }
 
 .book-review-item h4 {
     margin-top: 0;
     margin-bottom: 5px;
-    color: #007bff;
+    color: var(--review-item-heading);
     text-align: left;
-}
-body.dark-mode .book-review-item h4 {
-    color: #88c0f7;
 }
 
 .book-review-item p strong {
-    color: #444;
-}
-body.dark-mode .book-review-item p strong {
-    color: #ccc;
+    color: var(--review-item-strong);
 }
 
 .book-review-item small {
     display: block;
     margin-top: 10px;
-    color: #888;
+    color: var(--review-item-small);
     font-size: 0.8em;
 }
-body.dark-mode .book-review-item small {
-    color: #aaa;
-}
 
-/* Read Aloud Button within review item */
 .read-aloud-button {
-    background-color: #6c757d; /* Grey button */
+    background-color: var(--read-aloud-bg);
     color: white;
     padding: 5px 10px;
     border-radius: 5px;
     font-size: 0.8em;
-    position: absolute; /* Position it absolutely within the review item */
+    position: absolute;
     top: 10px;
     right: 10px;
-    box-shadow: none; /* No extra shadow */
+    box-shadow: none;
 }
 
 .read-aloud-button:hover {
-    background-color: #5a6268;
+    background-color: var(--read-aloud-hover-bg);
 }
 
-/* Custom Style Controls */
 .custom-style-controls .control-group {
     margin-bottom: 15px;
 }
+
 .custom-style-controls label {
     margin-bottom: 5px;
-    color: #555;
+    color: var(--label-color);
 }
-body.dark-mode .custom-style-controls label {
-    color: #ddd;
-}
+
 .custom-style-controls select,
 .custom-style-controls input[type="color"] {
     display: block;
-    width: auto; /* Allow color input to be smaller */
+    width: auto;
     padding: 8px;
     border-radius: 5px;
 }
 
-/* Messages (success/error) */
+#dark-mode-toggle {
+    background-color: #6c757d;
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.3s ease;
+}
+
+#dark-mode-toggle:hover {
+    background-color: #5a6268;
+}
+
+body.dark-mode #dark-mode-toggle {
+    background-color: #007bff;
+}
+
+/* Messages */
 .message {
     padding: 10px;
     border-radius: 8px;
     margin-top: 15px;
     text-align: center;
 }
+
 .message.success {
-    background-color: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
+    background-color: var(--success-bg);
+    color: var(--success-color);
+    border: 1px solid var(--success-border);
 }
+
 .message.error {
-    background-color: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
+    background-color: var(--error-bg);
+    color: var(--error-color);
+    border: 1px solid var(--error-border);
 }
 
 /* Responsive Adjustments */
@@ -355,11 +354,10 @@ body.dark-mode .custom-style-controls label {
         width: 100%;
     }
     .search-results-grid {
-        grid-template-columns: 1fr; /* Stack cards on small screens */
+        grid-template-columns: 1fr;
     }
     .book-card {
-        max-width: 300px; /* Constrain width of stacked cards */
-        margin: 0 auto; /* Center stacked cards */
+        max-width: 300px;
+        margin: 0 auto;
     }
 }
-
