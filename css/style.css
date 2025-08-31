@@ -1,0 +1,365 @@
+/* Universal Box Sizing */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+/* Base Body Styles */
+body {
+    font-family: 'Inter', sans-serif; /* Using Inter font */
+    line-height: 1.6;
+    margin: 0;
+    padding: 20px;
+    background-color: #f8f8f8;
+    color: #333;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    min-height: 100vh; /* Ensures body takes full viewport height */
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Align items to the start for better content flow */
+}
+
+/* Dark Mode Styles */
+body.dark-mode {
+    background-color: #222;
+    color: #eee;
+}
+
+/* Container for app content */
+.container {
+    max-width: 960px;
+    width: 100%;
+    margin: 20px auto;
+    padding: 0 15px; /* Add some horizontal padding */
+}
+
+/* Section Styling */
+.section {
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    padding: 25px;
+    margin-bottom: 30px;
+    border: 1px solid #e0e0e0;
+}
+
+body.dark-mode .section {
+    background-color: #333;
+    border-color: #555;
+    color: #eee;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+}
+
+/* Headings */
+h1, h3, h4 {
+    color: #333;
+    margin-top: 0;
+    margin-bottom: 20px;
+    text-align: center;
+    font-weight: 700;
+}
+
+h1 {
+    font-size: 2.5em;
+    color: #007bff;
+    margin-bottom: 30px;
+}
+
+body.dark-mode h1,
+body.dark-mode h3,
+body.dark-mode h4 {
+    color: #eee;
+}
+
+/* Input Fields */
+.input-field {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-size: 16px;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.input-field:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+}
+
+body.dark-mode .input-field {
+    background-color: #555;
+    color: #eee;
+    border-color: #777;
+}
+
+/* Buttons */
+.btn {
+    background-color: #007bff;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.btn:hover {
+    background-color: #0056b3;
+    transform: translateY(-1px);
+}
+
+.btn:active {
+    background-color: #004085;
+    transform: translateY(0);
+}
+
+body.dark-mode .btn {
+    background-color: #0056b3;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+body.dark-mode .btn:hover {
+    background-color: #007bff;
+}
+
+/* Specific Section Styles */
+
+/* Search Input Group */
+.search-input-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.search-input-group .input-field {
+    flex-grow: 1;
+    margin-bottom: 0; /* Remove extra margin */
+}
+
+/* Search Results Grid */
+.search-results {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+    text-align: center;
+}
+body.dark-mode .search-results {
+    border-top-color: #666;
+}
+
+.search-results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.book-card {
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #eee;
+}
+
+body.dark-mode .book-card {
+    background-color: #444;
+    border-color: #666;
+    color: #eee;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.book-card img.book-cover {
+    max-width: 100px;
+    height: auto;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.book-card h5 {
+    font-size: 1.1em;
+    margin-bottom: 5px;
+    color: #333;
+    word-break: break-word; /* Prevents long words from overflowing */
+}
+body.dark-mode .book-card h5 {
+    color: #eee;
+}
+
+.book-card p {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 10px;
+}
+body.dark-mode .book-card p {
+    color: #bbb;
+}
+
+.book-card .select-book-btn {
+    background-color: #28a745;
+    padding: 8px 15px;
+    font-size: 0.9em;
+}
+
+.book-card .select-book-btn:hover {
+    background-color: #218838;
+}
+
+/* Review Form */
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #555;
+}
+body.dark-mode .form-group label {
+    color: #ddd;
+}
+
+.submit-btn {
+    width: 100%;
+}
+
+/* Review List */
+.book-reviews-list {
+    text-align: center;
+}
+
+#reviews-display {
+    margin-top: 20px;
+}
+
+.book-review-item {
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #eee;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    text-align: left; /* Align text inside review items to left */
+    position: relative; /* For read aloud button positioning */
+}
+
+body.dark-mode .book-review-item {
+    background-color: #444;
+    border-color: #666;
+    color: #eee;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.book-review-item h4 {
+    margin-top: 0;
+    margin-bottom: 5px;
+    color: #007bff;
+    text-align: left;
+}
+body.dark-mode .book-review-item h4 {
+    color: #88c0f7;
+}
+
+.book-review-item p strong {
+    color: #444;
+}
+body.dark-mode .book-review-item p strong {
+    color: #ccc;
+}
+
+.book-review-item small {
+    display: block;
+    margin-top: 10px;
+    color: #888;
+    font-size: 0.8em;
+}
+body.dark-mode .book-review-item small {
+    color: #aaa;
+}
+
+/* Read Aloud Button within review item */
+.read-aloud-button {
+    background-color: #6c757d; /* Grey button */
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 0.8em;
+    position: absolute; /* Position it absolutely within the review item */
+    top: 10px;
+    right: 10px;
+    box-shadow: none; /* No extra shadow */
+}
+
+.read-aloud-button:hover {
+    background-color: #5a6268;
+}
+
+/* Custom Style Controls */
+.custom-style-controls .control-group {
+    margin-bottom: 15px;
+}
+.custom-style-controls label {
+    margin-bottom: 5px;
+    color: #555;
+}
+body.dark-mode .custom-style-controls label {
+    color: #ddd;
+}
+.custom-style-controls select,
+.custom-style-controls input[type="color"] {
+    display: block;
+    width: auto; /* Allow color input to be smaller */
+    padding: 8px;
+    border-radius: 5px;
+}
+
+/* Messages (success/error) */
+.message {
+    padding: 10px;
+    border-radius: 8px;
+    margin-top: 15px;
+    text-align: center;
+}
+.message.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+.message.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+    h1 {
+        font-size: 2em;
+    }
+    .section {
+        padding: 20px;
+    }
+    .search-input-group {
+        flex-direction: column;
+    }
+    .search-input-group .btn {
+        width: 100%;
+    }
+    .search-results-grid {
+        grid-template-columns: 1fr; /* Stack cards on small screens */
+    }
+    .book-card {
+        max-width: 300px; /* Constrain width of stacked cards */
+        margin: 0 auto; /* Center stacked cards */
+    }
+}
+
