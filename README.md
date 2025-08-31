@@ -48,6 +48,8 @@ After activating the plugin, you can add its features to any page or post using 
 
 [display_all_book_reviews] - Displays all reviews submitted to the site.
 
+[book_reviews_customization] - Display the dark mode button in the site.
+
 Example Page Setup:
 Create a new page and add the shortcodes like this:
 
