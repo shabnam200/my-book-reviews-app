@@ -2,155 +2,125 @@
 /**
  * Plugin Name: My Book Reviews App
  * Description: A custom plugin for searching books and submitting/displaying reviews.
- * Version: 1.0
- * Author: Your Name
+ * Version: 1.2
  */
 
-// Exit if accessed directly. Prevents direct access to this file.
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-// Your plugin's PHP code will go below this line.
 
-// =======================================================================================
-// === 1. PLUGIN ACTIVATION & DEACTIVATION HOOKS (DATABASE TABLE CREATION/DELETION) ===
-// =======================================================================================
-
-// Function to create the custom database table on plugin activation
 function my_book_reviews_install() {
-    global $wpdb; // Access WordPress database object
-    $table_name = $wpdb->prefix . 'book_reviews'; // Use WordPress table prefix for uniqueness
-    $charset_collate = $wpdb->get_charset_collate(); // Get database character set and collation
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'book_reviews';
+    $charset_collate = $wpdb->get_charset_collate();
 
-    // SQL statement to create the table
     $sql = "CREATE TABLE $table_name (
         id mediumint(9) NOT NULL AUTO_INCREMENT,
         book_title varchar(255) NOT NULL,
         reviewer_name varchar(100) NOT NULL,
         review_text text NOT NULL,
-        rating tinyint(1) NOT NULL, -- 1-5 star rating
+        rating tinyint(1) NOT NULL,
         review_date datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
-        book_openlibrary_id varchar(50), -- To link to Open Library books (optional, but good practice)
+        book_openlibrary_id varchar(50),
         PRIMARY KEY (id)
-    ) $charset_collate;"; // Include charset and collation
+    ) $charset_collate;";
 
-    // We need to include upgrade.php for the dbDelta function
     require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-    dbDelta( $sql ); // This function creates the table if it doesn't exist or updates it if changed.
+    dbDelta( $sql );
+
+    if ( $wpdb->last_error ) {
+        error_log( 'My Book Reviews: Table creation failed - ' . $wpdb->last_error );
+    }
 }
-// Register the activation hook to run the install function when the plugin is activated
 register_activation_hook( __FILE__, 'my_book_reviews_install' );
 
-/**
- * Function to remove the custom database table on plugin deactivation (optional, for cleanup).
- * This is useful if you want to completely remove plugin data when it's deactivated.
- */
+function my_book_reviews_deactivate() {
+    
+}
+register_deactivation_hook( __FILE__, 'my_book_reviews_deactivate' );
+
 function my_book_reviews_uninstall() {
     global $wpdb;
     $table_name = $wpdb->prefix . 'book_reviews';
-    // Drop the table if it exists
     $wpdb->query( "DROP TABLE IF EXISTS $table_name" );
 }
-// Register the deactivation hook
-register_deactivation_hook( __FILE__, 'my_book_reviews_uninstall' );
+register_uninstall_hook( __FILE__, 'my_book_reviews_uninstall' );
 
 
-// =======================================================================================
-// === 2. AJAX HANDLERS (PHP FUNCTIONS CALLED BY JAVASCRIPT) ===
-// =======================================================================================
-
-/**
- * Handles the AJAX request to search for books using the Open Library API.
- * This function will be called by your JavaScript (script.js).
- */
 function my_book_reviews_ajax_search_books() {
-    // Sanitize and validate the search query from the AJAX request
+    if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'my_book_reviews_nonce' ) ) {
+        wp_send_json_error( array( 'message' => 'Security check failed.' ) );
+    }
+
     $query = isset( $_POST['query'] ) ? sanitize_text_field( $_POST['query'] ) : '';
 
     if ( empty( $query ) || strlen( $query ) < 3 ) {
-        wp_send_json_error( 'Search query must be at least 3 characters.' );
+        wp_send_json_error( array( 'message' => 'Search query must be at least 3 characters.' ) );
     }
 
-    // Construct the Open Library Search API URL
     $api_url = 'https://openlibrary.org/search.json?q=' . urlencode( $query );
 
-    // Use WordPress's built-in HTTP API to make a request to Open Library
     $response = wp_remote_get( $api_url, array(
-        'timeout' => 10, // Timeout after 10 seconds
-        'user-agent' => 'MyBookReviewApp/1.0 (info@yourdomain.com)', // Good practice to identify your app
+        'timeout' => 10,
+        'user-agent' => 'MyBookReviewApp/1.2 (info@yourdomain.com)',
     ) );
 
-    // Check for WordPress HTTP errors
     if ( is_wp_error( $response ) ) {
-        wp_send_json_error( 'Failed to connect to Open Library API: ' . $response->get_error_message() );
+        wp_send_json_error( array( 'message' => 'Failed to connect to Open Library API: ' . $response->get_error_message() ) );
     }
 
-    // Get the body of the response and decode the JSON
     $body = wp_remote_retrieve_body( $response );
     $data = json_decode( $body, true );
 
-    // Check if API response is valid and contains 'docs' (search results)
     if ( empty( $data ) || ! isset( $data['docs'] ) ) {
-        wp_send_json_error( 'No books found or invalid API response format.' );
+        wp_send_json_error( array( 'message' => 'No books found or invalid API response.' ) );
     }
 
     $books = array();
-    // Loop through the results and extract relevant information
     foreach ( $data['docs'] as $doc ) {
-        // Ensure necessary data exists before adding the book
         if ( isset( $doc['title'] ) && isset( $doc['author_name'] ) && ! empty( $doc['author_name'][0] ) ) {
-            $book = array(
+            $books[] = array(
                 'title'              => esc_html( $doc['title'] ),
-                'author'             => esc_html( $doc['author_name'][0] ), // Take the first author
+                'author'             => esc_html( $doc['author_name'][0] ),
                 'first_publish_year' => isset( $doc['first_publish_year'] ) ? esc_html( $doc['first_publish_year'] ) : 'N/A',
-                'cover_id'           => isset( $doc['cover_i'] ) ? esc_html( $doc['cover_i'] ) : null, // ID for cover image
-                // Open Library uses 'key' as a unique ID for works (e.g., /works/OL12345W)
+                'cover_id'           => isset( $doc['cover_i'] ) ? esc_html( $doc['cover_i'] ) : null,
                 'openlibrary_id'     => isset( $doc['key'] ) ? str_replace( '/works/', '', esc_html( $doc['key'] ) ) : null,
             );
-            $books[] = $book;
-            if ( count( $books ) >= 10 ) { // Limit results to prevent overwhelming the display
+            if ( count( $books ) >= 10 ) {
                 break;
             }
         }
     }
 
-    // Send successful JSON response with book data
     wp_send_json_success( $books );
 }
-// Hook for logged-in users (wp_ajax_) and non-logged-in users (wp_ajax_nopriv_)
 add_action( 'wp_ajax_search_books', 'my_book_reviews_ajax_search_books' );
 add_action( 'wp_ajax_nopriv_search_books', 'my_book_reviews_ajax_search_books' );
 
-
-/**
- * Handles the AJAX request to submit a new book review to the database.
- */
 function my_book_reviews_ajax_submit_review() {
-    global $wpdb; // Access WordPress database object
-    $table_name = $wpdb->prefix . 'book_reviews'; // Your custom table name
+    if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'my_book_reviews_nonce' ) ) {
+        wp_send_json_error( array( 'message' => 'Security check failed.' ) );
+    }
 
-    // Retrieve and sanitize data from the AJAX request (assuming JSON payload from JS)
-    $input_data = file_get_contents('php://input'); // Get raw POST data
-    $data = json_decode($input_data, true); // Decode JSON into an associative array
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'book_reviews';
 
-    // Basic validation for required fields
+    $data = $_POST; 
     if ( ! isset( $data['book_title'], $data['reviewer_name'], $data['review_text'], $data['rating'], $data['book_openlibrary_id'] ) ) {
-        wp_send_json_error( 'Missing required fields for review submission.' );
+        wp_send_json_error( array( 'message' => 'Missing required fields for review submission.' ) );
     }
 
     $book_title          = sanitize_text_field( $data['book_title'] );
     $reviewer_name       = sanitize_text_field( $data['reviewer_name'] );
-    $review_text         = sanitize_textarea_field( $data['review_text'] ); // Use for textarea content
-    $rating              = intval( $data['rating'] ); // Ensure rating is an integer
+    $review_text         = sanitize_textarea_field( $data['review_text'] );
+    $rating              = intval( $data['rating'] );
     $book_openlibrary_id = sanitize_text_field( $data['book_openlibrary_id'] );
 
-    // More robust validation
     if ( empty( $book_title ) || empty( $reviewer_name ) || empty( $review_text ) || $rating < 1 || $rating > 5 ) {
-        wp_send_json_error( 'Please fill in all required fields correctly (rating must be 1-5).' );
+        wp_send_json_error( array( 'message' => 'Please fill in all required fields correctly (rating must be 1-5).' ) );
     }
 
-    // Insert data into the database using $wpdb->insert for security and ease
     $inserted = $wpdb->insert(
         $table_name,
         array(
@@ -159,60 +129,42 @@ function my_book_reviews_ajax_submit_review() {
             'review_text'         => $review_text,
             'rating'              => $rating,
             'book_openlibrary_id' => $book_openlibrary_id,
-            'review_date'         => current_time( 'mysql' ), // WordPress function for current time
+            'review_date'         => current_time( 'mysql' ),
         ),
-        array(
-            '%s', // Format for book_title (string)
-            '%s', // Format for reviewer_name (string)
-            '%s', // Format for review_text (string)
-            '%d', // Format for rating (integer)
-            '%s', // Format for book_openlibrary_id (string)
-            '%s', // Format for review_date (datetime string)
-        )
+        array( '%s', '%s', '%s', '%d', '%s', '%s' )
     );
 
     if ( $inserted ) {
-        wp_send_json_success( 'Review submitted successfully!' );
+        wp_send_json_success( array( 'message' => 'Review submitted successfully!' ) );
     } else {
-        wp_send_json_error( 'Failed to submit review. Database error: ' . $wpdb->last_error );
+        wp_send_json_error( array( 'message' => 'Failed to submit review. Database error: ' . $wpdb->last_error ) );
     }
 }
 add_action( 'wp_ajax_submit_review', 'my_book_reviews_ajax_submit_review' );
 add_action( 'wp_ajax_nopriv_submit_review', 'my_book_reviews_ajax_submit_review' );
 
-
-/**
- * Handles the AJAX request to fetch and display all existing book reviews.
- */
 function my_book_reviews_ajax_get_reviews() {
-    global $wpdb; // Access WordPress database object
-    $table_name = $wpdb->prefix . 'book_reviews'; // Your custom table name
-
-    // Retrieve reviews, ordered by date descending
-    // Using $wpdb->get_results for safe query and result retrieval
-    $reviews = $wpdb->get_results( "SELECT * FROM $table_name ORDER BY review_date DESC", ARRAY_A ); // ARRAY_A returns associative array
-
-    if ( $reviews ) {
-        wp_send_json_success( $reviews );
-    } else {
-        // If no reviews found, still return success but with empty data
-        wp_send_json_success( array() );
+    if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'my_book_reviews_nonce' ) ) {
+        wp_send_json_error( array( 'message' => 'Security check failed.' ) );
     }
+
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'book_reviews';
+
+    $reviews = $wpdb->get_results( "SELECT * FROM $table_name ORDER BY review_date DESC", ARRAY_A );
+
+    if ( $wpdb->last_error ) {
+        wp_send_json_error( array( 'message' => 'Database error: ' . $wpdb->last_error ) );
+    }
+
+    wp_send_json_success( $reviews ?: array() );
 }
 add_action( 'wp_ajax_get_reviews', 'my_book_reviews_ajax_get_reviews' );
 add_action( 'wp_ajax_nopriv_get_reviews', 'my_book_reviews_ajax_get_reviews' );
 
 
-// =======================================================================================
-// === 3. SHORTCODES (HTML FORM & DISPLAY VIA WORDPRESS PAGES) ===
-// =======================================================================================
-
-/**
- * Shortcode to display the book search form.
- * Users will add [book_search_form] to a WordPress page.
- */
 function my_book_reviews_search_form_shortcode() {
-    ob_start(); // Start output buffering
+    ob_start();
     ?>
     <div class="book-search-container section">
         <h3>Search for Books</h3>
@@ -225,14 +177,10 @@ function my_book_reviews_search_form_shortcode() {
         </div>
     </div>
     <?php
-    return ob_get_clean(); // Return the buffered HTML
+    return ob_get_clean();
 }
 add_shortcode( 'book_search_form', 'my_book_reviews_search_form_shortcode' );
 
-/**
- * Shortcode to display the book review submission form.
- * Users will add [book_review_submission_form] to a WordPress page.
- */
 function my_book_reviews_submission_form_shortcode() {
     ob_start();
     ?>
@@ -241,7 +189,6 @@ function my_book_reviews_submission_form_shortcode() {
         <form id="review-form">
             <div class="form-group">
                 <label for="book_title">Book Title:</label>
-                <!-- Readonly input for book title, populated by JS -->
                 <input type="text" id="book_title" name="book_title" class="input-field" readonly required placeholder="Select a book from search results">
             </div>
             <div class="form-group">
@@ -256,9 +203,7 @@ function my_book_reviews_submission_form_shortcode() {
                 <label for="review_text">Your Review:</label>
                 <textarea id="review_text" name="review_text" rows="5" class="input-field" required></textarea>
             </div>
-            <!-- Hidden field for Open Library ID, will be populated by JS -->
             <input type="hidden" id="book_openlibrary_id" name="book_openlibrary_id">
-
             <button type="submit" class="btn submit-btn">Submit Review</button>
         </form>
         <div id="form-message" class="message"></div>
@@ -268,11 +213,6 @@ function my_book_reviews_submission_form_shortcode() {
 }
 add_shortcode( 'book_review_submission_form', 'my_book_reviews_submission_form_shortcode' );
 
-
-/**
- * Shortcode to display all existing book reviews.
- * Users will add [display_all_book_reviews] to a WordPress page.
- */
 function my_book_reviews_display_all_reviews_shortcode() {
     ob_start();
     ?>
@@ -287,47 +227,61 @@ function my_book_reviews_display_all_reviews_shortcode() {
 }
 add_shortcode( 'display_all_book_reviews', 'my_book_reviews_display_all_reviews_shortcode' );
 
+function my_book_reviews_customization_controls_shortcode() {
+    ob_start();
+    ?>
+    <div class="custom-style-controls section">
+        <div class="control-group">
+            <label for="dark-mode-toggle">Toggle Dark Mode:</label>
+            <button id="dark-mode-toggle" class="btn">Toggle Dark Mode</button>
+        </div>
+        <div class="control-group">
+            <label for="cursor-style">Cursor Style:</label>
+            <select id="cursor-style" class="input-field">
+                <option value="default">Default</option>
+                <option value="pointer">Pointer</option>
+                <option value="crosshair">Crosshair</option>
+                <option value="text">Text</option>
+            </select>
+        </div>
+        <div class="control-group">
+            <label for="highlight-color">Highlight Color:</label>
+            <input type="color" id="highlight-color" class="input-field" value="#007bff">
+        </div>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode( 'book_reviews_customization', 'my_book_reviews_customization_controls_shortcode' );
 
-// =======================================================================================
-// === 4. ENQUEUE SCRIPTS & STYLES (JAVASCRIPT & CSS) ===
-// =======================================================================================
-
-/**
- * Enqueues custom JavaScript and CSS files for the frontend.
- * This is the proper WordPress way to load scripts and styles.
- */
 function my_book_reviews_enqueue_assets() {
-    // Enqueue jQuery as a dependency (WordPress includes it by default)
     wp_enqueue_script( 'jquery' );
 
-    // Enqueue your custom JavaScript file
     wp_enqueue_script(
-        'my-book-reviews-script',                               // Unique handle for your script
-        plugin_dir_url( __FILE__ ) . 'js/script.js',           // Path to your script file
-        array( 'jquery' ),                                     // Dependencies (this script needs jQuery)
-        '1.0',                                                 // Version number
-        true                                                   // Load in footer
+        'my-book-reviews-script',
+        plugin_dir_url( __FILE__ ) . 'js/script.js',
+        array( 'jquery' ),
+        '1.2',
+        true
     );
 
-    // Pass PHP variables (like the AJAX URL) to your JavaScript file
     wp_localize_script(
-        'my-book-reviews-script', // Handle of the script to attach data to
-        'myBookReviewsData',      // JavaScript object name (e.g., myBookReviewsData.ajaxurl)
+        'my-book-reviews-script',
+        'myBookReviewsData',
         array(
-            'ajaxurl' => admin_url( 'admin-ajax.php' ), // WordPress AJAX endpoint URL
+            'ajaxurl' => admin_url( 'admin-ajax.php' ),
+            'nonce'   => wp_create_nonce( 'my_book_reviews_nonce' ),
         )
     );
 
-    // Enqueue your custom CSS file
     wp_enqueue_style(
-        'my-book-reviews-style',                               // Unique handle for your stylesheet
-        plugin_dir_url( __FILE__ ) . 'css/style.css',          // Path to your stylesheet
-        array(),                                               // No dependencies for CSS
-        '1.0',                                                 // Version number
-        'all'                                                  // Media type (all devices)
+        'my-book-reviews-style',
+        plugin_dir_url( __FILE__ ) . 'css/style.css',
+        array(),
+        '1.2',
+        'all'
     );
 }
-// Hook into wp_enqueue_scripts to load assets on the frontend
 add_action( 'wp_enqueue_scripts', 'my_book_reviews_enqueue_assets' );
 
 ?>
